@@ -1,55 +1,57 @@
 $(document).ready(function () {
-  var timeData = [],
-    temperatureData = [],
-    humidityData = [];
-  var data = {
-    labels: timeData,
-    datasets: [
-      {
-        fill: false,
-        label: 'Temperature',
-        yAxisID: 'Temperature',
-        borderColor: "rgba(255, 204, 0, 1)",
-        pointBoarderColor: "rgba(255, 204, 0, 1)",
-        backgroundColor: "rgba(255, 204, 0, 0.4)",
-        pointHoverBackgroundColor: "rgba(255, 204, 0, 1)",
-        pointHoverBorderColor: "rgba(255, 204, 0, 1)",
-        data: temperatureData
-      },
-      {
-        fill: false,
-        label: 'Humidity',
-        yAxisID: 'Humidity',
-        borderColor: "rgba(24, 120, 240, 1)",
-        pointBoarderColor: "rgba(24, 120, 240, 1)",
-        backgroundColor: "rgba(24, 120, 240, 0.4)",
-        pointHoverBackgroundColor: "rgba(24, 120, 240, 1)",
-        pointHoverBorderColor: "rgba(24, 120, 240, 1)",
-        data: humidityData
-      }
-    ]
-  }
+    var timeData = [],
+    temperatureCPUsData = [],
+    totalLoadCPUsData = [];
+
+    var data = {
+        labels: timeData,
+        datasets: [
+            {
+                fill: false,
+                label: 'Temperatura Total CPUs',
+                yAxisID: 'Temperatura Total CPUs',
+                borderColor: "rgba(255, 204, 0, 1)",
+                pointBoarderColor: "rgba(255, 204, 0, 1)",
+                backgroundColor: "rgba(255, 204, 0, 0.4)",
+                pointHoverBackgroundColor: "rgba(255, 204, 0, 1)",
+                pointHoverBorderColor: "rgba(255, 204, 0, 1)",
+                data: temperatureCPUsData
+
+            },
+            {
+                fill: false,
+                label: 'Carga Total CPUs',
+                yAxisID: 'Carga Total CPUs',
+                borderColor: "rgba(24, 120, 240, 1)",
+                pointBoarderColor: "rgba(24, 120, 240, 1)",
+                backgroundColor: "rgba(24, 120, 240, 0.4)",
+                pointHoverBackgroundColor: "rgba(24, 120, 240, 1)",
+                pointHoverBorderColor: "rgba(24, 120, 240, 1)",
+                data: totalLoadCPUsData
+            }
+        ]
+    }
 
   var basicOption = {
     title: {
       display: true,
-      text: 'Temperature & Humidity Real-time Data',
+      text: 'Dades Temperatura Total CPUs & Carga Total CPUs a Temps Real',
       fontSize: 36
     },
     scales: {
       yAxes: [{
-        id: 'Temperature',
+        id: 'Temperatura Total',
         type: 'linear',
         scaleLabel: {
-          labelString: 'Temperature(C)',
+          labelString: 'Temperatura(C)',
           display: true
         },
         position: 'left',
       }, {
-          id: 'Humidity',
+          id: 'Carga Total',
           type: 'linear',
           scaleLabel: {
-            labelString: 'Humidity(%)',
+            labelString: 'Carga(%)',
             display: true
           },
           position: 'right'
@@ -70,33 +72,33 @@ $(document).ready(function () {
   ws.onopen = function () {
     console.log('Successfully connect WebSocket');
   }
-  ws.onmessage = function (message) {
-    console.log('receive message' + message.data);
-    try {
-      var obj = JSON.parse(message.data);
-      if(!obj.time || !obj.temperature) {
-        return;
-      }
-      timeData.push(obj.time);
-      temperatureData.push(obj.temperature);
-      // only keep no more than 50 points in the line chart
-      const maxLen = 50;
-      var len = timeData.length;
-      if (len > maxLen) {
-        timeData.shift();
-        temperatureData.shift();
-      }
+    ws.onmessage = function (message) {
+        console.log('receive message' + message.data);
+        try {
+            var obj = JSON.parse(message.data);
+            if (!obj.time || !obj.temperature) {
+                return;
+            }
+            timeData.push(obj.time);
+            temperatureCPUsData.push(obj.temperature);
+            // only keep no more than 50 points in the line chart
+            const maxLen = 50;
+            var len = timeData.length;
+            if (len > maxLen) {
+                timeData.shift();
+                temperatureCPUsData.shift();
+            }
 
-      if (obj.humidity) {
-        humidityData.push(obj.humidity);
-      }
-      if (humidityData.length > maxLen) {
-        humidityData.shift();
-      }
+            if (obj.humidity) {
+                totalLoadCPUsData.push(obj.humidity);
+            }
+            if (totalLoadCPUsData.length > maxLen) {
+                totalLoadCPUsData.shift();
+            }
 
-      myLineChart.update();
-    } catch (err) {
-      console.error(err);
+            myLineChart.update();
+        } catch (err) {
+            console.error(err);
+        }
     }
-  }
 });
